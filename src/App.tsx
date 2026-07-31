@@ -55,20 +55,17 @@ export default function App() {
   };
 
   async function playCard({ content, pos }: { content?: Card; pos: string }) {
-    if (!content) return;
-
-    let cardPlayed = content;
     let newMana = mana;
     let newShield = shield;
-    if (content.action === "attack") {
-      setOre(ore - cardPlayed.quantity);
+    if (content !== undefined && content.action === "attack") {
+      setOre(ore - content.quantity);
     }
-    if (content.action === "deffence") {
-      newShield = shield + cardPlayed.quantity;
+    if (content !== undefined && content.action === "deffence") {
+      newShield = shield + content.quantity;
       setShield(newShield);
     }
-    if (content.action === "mana") {
-      newMana = newMana + cardPlayed.quantity;
+    if (content !== undefined && content.action === "mana") {
+      newMana = newMana + content.quantity;
     }
     let newDrawPile = [...drawPile];
     let newHand = [...hand];
@@ -76,15 +73,17 @@ export default function App() {
     newDrawPile.sort(() => 0.5 - Math.random());
 
     if (newHand.length > 0) {
-      const index = newHand.findIndex((x) => x.id === content.id);
-      newDiscardPile.push(newHand[index]);
-      newHand.splice(index, 1, newDrawPile[0]);
-      newDrawPile.splice(0, 1);
-      newMana = newMana - 1;
-      const newHistory = [...history];
-      newHistory.push("Mana -1, ");
-      newHistory.push(`Mana: ${newMana}, `);
-      setHistory(newHistory);
+      const index = newHand.findIndex((x) => x.id === content?.id);
+      if (index !== -1) {
+        newDiscardPile.push(newHand[index]);
+        newHand.splice(index, 1, newDrawPile[0]);
+        newDrawPile.splice(0, 1);
+        newMana = newMana - 1;
+        const newHistory = [...history];
+        newHistory.push("Mana -1, ");
+        newHistory.push(`Mana: ${newMana}, `);
+        setHistory(newHistory);
+      }
     } else {
       newHand.push(newDrawPile[0]);
       newHand.push(newDrawPile[1]);
